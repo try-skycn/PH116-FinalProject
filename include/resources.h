@@ -4,6 +4,7 @@
 #include <complex>
 #include <vector>
 #include <utility>
+#include <armadillo>
 
 typedef std::pair<unsigned int, unsigned int> vertex_pair;
 typedef std::pair<std::complex<double>, std::complex<double> > conductor_info;
