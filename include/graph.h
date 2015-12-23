@@ -20,6 +20,9 @@ private:	//For data structures
 		bool bfs_mark;
 	};
 
+	vertex *vertex_memory_pool;
+	edge *edge_memory_pool;
+
 private:	//For internal functions
 	edge *add_edge(vertex *, vertex *, conductor_info);
 	bool find_tree_path(vertex *, vertex *, vertex *, std::vector<edge *> &);
