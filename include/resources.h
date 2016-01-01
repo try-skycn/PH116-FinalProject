@@ -6,8 +6,17 @@
 #include <utility>
 #include <armadillo>
 
-typedef std::pair<unsigned int, unsigned int> vertex_pair;
-typedef std::pair<std::complex<double>, std::complex<double> > conductor_info;
-typedef std::pair<vertex_pair, conductor_info> conductor;
+typedef unsigned int uint;
+typedef std::complex<double> comp;
+struct vertex_pair {
+	uint from, to;
+};
+struct conductor_info {
+	comp imp, emf;
+};
+struct conductor {
+	vertex_pair edge_info;
+	conductor_info elect_info;
+};
 
 #endif

@@ -35,6 +35,7 @@ private:	//For internal functions
 public:	//For user ports
 	graph(unsigned int, const std::vector<conductor> &);
 	void get_current(std::vector<std::complex<double> > &);
+	~graph();
 };
 
 #endif
