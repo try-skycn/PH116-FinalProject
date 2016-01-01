@@ -29,7 +29,7 @@ private:	//For data structures
 	uint vertex_number, edge_number;
 
 private:	//For internal functions
-	void add_edge(edge *, vertex *, vertex *, conductor_info, char, uint);
+	void add_edge(edge *, vertex *, vertex *, conductor_info, double, uint);
 	void find_tree_path(uint, vertex *, vertex *, std::vector<edge *> &);
 
 	arma::cx_rowvec flow_conservation_equation(vertex *);
