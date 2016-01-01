@@ -30,7 +30,7 @@ private:	//For data structures
 
 private:	//For internal functions
 	void add_edge(edge *, vertex *, vertex *, conductor_info, char, uint);
-	void find_tree_path(vertex *, vertex *, std::vector<edge *> &);
+	void find_tree_path(uint, vertex *, vertex *, std::vector<edge *> &);
 
 	arma::cx_rowvec flow_conservation_equation(vertex *);
 	std::pair<arma::cx_rowvec, comp> circular_equation(vertex *, edge *);
