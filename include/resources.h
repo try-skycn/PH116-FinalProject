@@ -4,6 +4,7 @@
 #include <complex>
 #include <vector>
 #include <utility>
+#include <queue>
 #include <armadillo>
 
 typedef unsigned int uint;

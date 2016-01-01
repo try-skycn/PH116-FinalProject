@@ -20,25 +20,25 @@ arma::cx_rowvec graph::flow_conservation_equation(vertex *x) {
 
 std::pair<arma::cx_rowvec, comp> graph::circular_equation(vertex *from, edge *e) {
 	std::vector<edge *> path;
-	find_tree_path(from, e->endpoint, path);
+	find_tree_path(e->index, from, e->endpoint, path);
 	path.push_back(e->opposite_edge);
 
 	arma::cx_rowvec edgeimp;
 	comp totemf;
 
 	for (std::vector<edge *>::iterator it = path.begin(); it != path.end(); ++it) {
-		edgeimp((*it)->index) = (*it)->direction * (*it)->conductor_info->imp;
-		totemf += (*it)->direction * (*it)->conductor_info->emf;
+		edgeimp((*it)->index) = (*it)->direction * (*it)->elect_info.imp;
+		totemf += (*it)->direction * (*it)->elect_info.emf;
 	}
 	return std::pair<arma::cx_rowvec, comp>(edgeimp, totemf);
 }
 
 void graph::bfs(vertex *start, arma::cx_mat &A, arma::cx_vec &b, uint &current_row) {
-	queue<vertex *> Q;
+	std::queue<vertex *> Q;
 	Q.push(start);
 	start->bfs_mark = true;
 	while (!Q.empty()) {
-		x = Q.front();
+		vertex *x = Q.front();
 		Q.pop();
 		for (edge *e = x->first_edge; e; e = e->next_edge) {
 			if (!x->bfs_mark) {
@@ -56,8 +56,8 @@ void graph::bfs(vertex *start, arma::cx_mat &A, arma::cx_vec &b, uint &current_r
 
 void graph::find_all_circular(arma::cx_mat &A, arma::cx_vec &b, uint &current_row) {
 	for (uint i = 0; i < vertex_number; ++i) {
-		vertex *x = vertex_memory_pool[i];
-		for (edge *e = x->first_edge; e; e != e->next_edge) {
+		vertex *x = vertex_memory_pool + i;
+		for (edge *e = x->first_edge; e; e = e->next_edge) {
 			if (!e->in_tree && e->direction > 0.0) {
 				std::pair<arma::cx_rowvec, comp> equa = circular_equation(x, e);
 				A.row(current_row) = equa.first;
@@ -74,18 +74,20 @@ graph::graph(uint V, const std::vector<conductor> &conductors) {
 	edge_number = conductors.size();
 	edge_memory_pool = new edge[2 * edge_number];
 	for (uint i = 0; i < edge_number; ++i) {
-		vertex *x = conductors[i].edge_info.from, *y = conductors[i].edge_info.to;
-		edge *ep = edge + (2 * i), *en = edge + (2 * i + 1);
-		addedge(ep, x, y, conductors[i].elect_info,  1.0, i);
-		addedge(en, y, x, conductors[i].elect_info, -1.0, i);
+		vertex *x = vertex_memory_pool + conductors[i].edge_info.from;
+		vertex *y = vertex_memory_pool + conductors[i].edge_info.to;
+		edge *ep = edge_memory_pool + (2 * i);
+		edge *en = edge_memory_pool + (2 * i + 1);
+		add_edge(ep, x, y, conductors[i].elect_info,  1.0, i);
+		add_edge(en, y, x, conductors[i].elect_info, -1.0, i);
 		ep->opposite_edge = en;
 		en->opposite_edge = ep;
 	}
 }
 
 void graph::get_current(std::vector<comp> &current) {
-	arma::cx_mat A(edge_number, edge_number, fill::zeros);
-	arma::cx_vec b(edge_number, fill::zeros);
+	arma::cx_mat A(edge_number, edge_number, arma::fill::zeros);
+	arma::cx_vec b(edge_number, arma::fill::zeros);
 	uint current_row = 0;
 	for (uint i = 0; i < vertex_number; ++i) {
 		if (!vertex_memory_pool[i].bfs_mark) {
