@@ -71,15 +71,31 @@ void graph::find_all_circular(arma::cx_mat &A, arma::cx_vec &b, uint &current_ro
 graph::graph(uint V, const std::vector<conductor> &conductors) {
 	vertex_number = V;
 	vertex_memory_pool = new vertex[vertex_number];
-	uint size = conductors.size();
-	edge_memory_pool = new edge[2 * size];
-	for (uint i = 0; i < size; ++i) {
+	edge_number = conductors.size();
+	edge_memory_pool = new edge[2 * edge_number];
+	for (uint i = 0; i < edge_number; ++i) {
 		vertex *x = conductors[i].edge_info.from, *y = conductors[i].edge_info.to;
 		edge *ep = edge + (2 * i), *en = edge + (2 * i + 1);
 		addedge(ep, x, y, conductors[i].elect_info,  1.0, i);
 		addedge(en, y, x, conductors[i].elect_info, -1.0, i);
 		ep->opposite_edge = en;
 		en->opposite_edge = ep;
+	}
+}
+
+void graph::get_current(std::vector<comp> &current) {
+	arma::cx_mat A(edge_number, edge_number, fill::zeros);
+	arma::cx_vec b(edge_number, fill::zeros);
+	uint current_row = 0;
+	for (uint i = 0; i < vertex_number; ++i) {
+		if (!vertex_memory_pool[i].bfs_mark) {
+			bfs(vertex_memory_pool + i, A, b, current_row);
+		}
+	}
+	find_all_circular(A, b, current_row);
+	arma::cx_vec I = arma::solve(A, b);
+	for (uint i = 0; i < edge_number; ++i) {
+		current.push_back(I(i));
 	}
 }
 

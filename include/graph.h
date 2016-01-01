@@ -26,7 +26,7 @@ private:	//For data structures
 
 	vertex *vertex_memory_pool;
 	edge *edge_memory_pool;
-	uint vertex_number;
+	uint vertex_number, edge_number;
 
 private:	//For internal functions
 	void add_edge(edge *, vertex *, vertex *, conductor_info, char, uint);
