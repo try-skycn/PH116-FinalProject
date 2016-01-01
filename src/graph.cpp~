@@ -10,7 +10,7 @@ void graph::add_edge(edge *e, vertex *from, vertex *to, conductor_info elect_inf
 	e->elect_info = elect_info;
 }
 
-void graph::find_tree_path(uint index, vertex *x, vertex *y, std::vector<edge *> &path){
+void find_tree_path(uint index, vertex *x, vertex *y, std::vector<edge *> &path){
 	std::queue<vertex *> Q;
 	Q.push(x);
 	x->find_tree_mark = true;
