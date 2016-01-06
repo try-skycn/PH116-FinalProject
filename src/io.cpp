@@ -3,27 +3,26 @@
 #include <string>
 
 enum {DC, AC} type;
-ifstream fin("data.txt");
-ofstream fout("out.tex");
+std::ifstream fin("data.txt");
+std::ofstream fout("out.tex");
 void draw_circuit(const std::vector <conductor> &);
 
 void output_circuit_current(const std::vector <std::complex<double> > &I, const std::vector <conductor> &w) {
     draw_circuit(w);
-    fout << "\begin{tabular}{l|l}" << endl;
+    fout << "\begin{table}[!htb]" << std::endl;
+    fout << "\begin{tabular}{l|l}" << std::endl;
     for (uint i = 0; i < I.size(); i++) {
         fout << "$I_{" << i << "}$" << " & $";
-        switch (type) {
-            DC: 
-                fout << I[i].re;
-                break;
-            RC:
-                fout << I[i].re << " + " << I[i].im << "i ";
-                break;
+        if (type == DC){
+            fout << I[i].real();
         }
-        fout << "A$ \\" << endl;
+        else {
+            fout << I[i].real() << " + " << I[i].imag() << "i ";
+        }
+        fout << "A$ \\" << std::endl;
     }
-    fout << "\end{tabular}" << endl
-         << "\end{document}" << endl;
+    fout << "\end{tabular}" << std::endl;
+    fout << "\end{table}" << std::endl;
     fout.close();
 }
 
@@ -34,12 +33,16 @@ void output_circuit_current(const std::vector <std::complex<double> > &I, const 
  *  represents the type of the circuit(DC circuit or RC circuit)
  *  
  *  rest lines: 
- *      from, to, imp.re, imp.im, emf.re, emf.im  
+ *      from, to, imp.re, imp.im, emf.re, emf.im
+ *  
+ *  WARNING: input vertex number should be zero-based
  */
 unsigned int input_circuit_network(std::vector <conductor>& w) {
     std::string str;
+    double real, imag;
     fin >> str;
-    if (str == "DC") type = DC; else type = RC;
+    if (str == "DC") type = DC;
+        else type = AC;
     uint N = -1;
     while (1) {
         conductor next;
@@ -51,17 +54,18 @@ unsigned int input_circuit_network(std::vector <conductor>& w) {
         next.edge_info.from = f;
         next.edge_info.to = t;
         
-        switch (type) {
-            RC: 
-                fin >> next.elect_info.imp.re >> next.elect_info.imp.im
-                    >> next.elect_info.emf.re >> next.elect_info.emf.im;
-                break;
-            DC:
-                fin >> next.elect_info.imp.re
-                    >> next.elect_info.emf.re;
-                break;
+        if (type == AC){
+            fin >> real >> imag;
+            next.elect_info.imp = std::complex<double>(real, imag);
+            fin >> real >> imag;
+            next.elect_info.emf = std::complex<double>(real, imag);
         }
-        
+        else {
+            fin >> real;
+            next.elect_info.imp = std::complex<double>(real);
+            fin >> real;
+            next.elect_info.emf = std::complex<double>(real);
+        }
         N = (f > N) ? f : N;
         N = (t > N) ? t : N;
         w.push_back(next);                 
