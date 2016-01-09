@@ -139,8 +139,8 @@ void graph::get_current(std::vector<comp> &current) {
 }
 
 graph::~graph() {
-	delete vertex_memory_pool;
-	delete edge_memory_pool;
+	delete[] vertex_memory_pool;
+	delete[] edge_memory_pool;
 }
 
 graph::edge::edge() {
