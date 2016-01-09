@@ -45,11 +45,11 @@ void graph::find_tree_path(uint index, vertex *x, vertex *y, std::vector<edge *>
 	
 	
 	for (vertex *u = y; u != x; u = u->prev_vertex){
-		//printf("In loop\n");
-		//printf("%p\n", u->prev_edge);
-		path.insert(path.begin(), u->prev_edge);
+		printf("In loop\n");
+		printf("%p\n", u->prev_edge);
+		path1.push_back(u->prev_edge);
 		}
-	//printf("Out loop\n");
+	printf("Out loop\n");
 		
 	//re-initial the find_tree_mark label
 	Q.push(x);
