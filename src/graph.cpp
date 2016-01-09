@@ -10,8 +10,38 @@ void graph::add_edge(edge *e, vertex *from, vertex *to, conductor_info elect_inf
 	e->elect_info = elect_info;
 }
 
+void graph::find_tree_path(uint index, vertex *x, vertex *y, std::vector<edge *> &path){
+	for (int i = 0; i < vertex_number; ++i) {
+		vertex_memory_pool[i].find_tree_mark = false;
+		vertex_memory_pool[i].prev_vertex = NULL;
+		vertex_memory_pool[i].prev_edge = NULL;
+	}
+	std::queue<vertex *> Q;
+	Q.push(x);
+	x->find_tree_mark = true;
+	while (!Q.empty()) {
+		vertex *u = Q.front();
+		Q.pop();
+		if (u == y) break;
+		for (edge *e = u->first_edge; e; e = e->next_edge) {
+			if (e->in_tree) {
+				vertex *v = e->endpoint;
+				if (!v->find_tree_mark) {
+					v->prev_vertex = u;
+					v->prev_edge = e;
+					Q.push(v);
+					v->find_tree_mark = true;
+				}
+			}
+		}
+	}
+	for (vertex *u = y; u != x; u = u->prev_vertex){
+		path.insert(path.begin(), u->prev_edge);
+	}
+}
+
 arma::cx_rowvec graph::flow_conservation_equation(vertex *x) {
-	arma::cx_rowvec edgedir;
+	arma::cx_rowvec edgedir(edge_number, arma::fill::zeros);
 	for (edge *e = x->first_edge; e; e = e->next_edge) {
 		edgedir(e->index) = e->direction;
 	}
@@ -23,7 +53,7 @@ std::pair<arma::cx_rowvec, comp> graph::circular_equation(vertex *from, edge *e)
 	find_tree_path(e->index, from, e->endpoint, path);
 	path.push_back(e->opposite_edge);
 
-	arma::cx_rowvec edgeimp;
+	arma::cx_rowvec edgeimp(edge_number, arma::fill::zeros);
 	comp totemf;
 
 	for (std::vector<edge *>::iterator it = path.begin(); it != path.end(); ++it) {
@@ -41,13 +71,13 @@ void graph::bfs(vertex *start, arma::cx_mat &A, arma::cx_vec &b, uint &current_r
 		vertex *x = Q.front();
 		Q.pop();
 		for (edge *e = x->first_edge; e; e = e->next_edge) {
-			if (!x->bfs_mark) {
+			if (!e->endpoint->bfs_mark) {
 				Q.push(x);
-				x->bfs_mark = true;
+				e->endpoint->bfs_mark = true;
 				e->in_tree = true;
 				e->opposite_edge->in_tree = true;
 
-				arma::cx_rowvec edgedir = flow_conservation_equation(x);
+				arma::cx_rowvec edgedir = flow_conservation_equation(e->endpoint);
 				A.row(current_row++) = edgedir;
 			}
 		}
@@ -101,6 +131,11 @@ void graph::get_current(std::vector<comp> &current) {
 	}
 }
 
+graph::~graph() {
+	delete[] vertex_memory_pool;
+	delete[] edge_memory_pool;
+}
+
 graph::edge::edge() {
 	in_tree = false;
 }
@@ -108,4 +143,7 @@ graph::edge::edge() {
 graph::vertex::vertex() {
 	first_edge = NULL;
 	bfs_mark = false;
+	find_tree_mark = false;
+	prev_edge = NULL;
+	prev_vertex = NULL;
 }
