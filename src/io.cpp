@@ -1,19 +1,19 @@
 #include "io.h"
+#include "resources.h"
 #include <fstream>
 #include <string>
-
-enum {DC, AC} type;
+#include "draw.h"
 std::ifstream fin("data.txt");
 std::ofstream fout("out.tex");
-void draw_circuit(const std::vector <conductor> &);
+
 
 void output_circuit_current(const std::vector <std::complex<double> > &I, const std::vector <conductor> &w) {
-    draw_circuit(w);
+    draw_circuit(I,w);
     fout << "\begin{table}[!htb]" << std::endl;
     fout << "\begin{tabular}{l|l}" << std::endl;
     for (uint i = 0; i < I.size(); i++) {
         fout << "$I_{" << i << "}$" << " & $";
-        if (type == DC){
+        if (TYPE == DC){
             fout << I[i].real();
         }
         else {
@@ -30,7 +30,7 @@ void output_circuit_current(const std::vector <std::complex<double> > &I, const 
  *  Input format:
  *  first line: 
         DC(RC)
- *  represents the type of the circuit(DC circuit or RC circuit)
+ *  represents the TYPE of the circuit(DC circuit or RC circuit)
  *  
  *  rest lines: 
  *      from, to, imp.re, imp.im, emf.re, emf.im
@@ -41,8 +41,8 @@ unsigned int input_circuit_network(std::vector <conductor>& w) {
     std::string str;
     double real, imag;
     fin >> str;
-    if (str == "DC") type = DC;
-        else type = AC;
+    if (str == "DC") TYPE = DC;
+        else TYPE = AC;
     uint N = -1;
     while (1) {
         conductor next;
@@ -54,7 +54,7 @@ unsigned int input_circuit_network(std::vector <conductor>& w) {
         next.edge_info.from = f;
         next.edge_info.to = t;
         
-        if (type == AC){
+        if (TYPE == AC){
             fin >> real >> imag;
             next.elect_info.imp = std::complex<double>(real, imag);
             fin >> real >> imag;

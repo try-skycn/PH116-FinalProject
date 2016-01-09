@@ -9,6 +9,8 @@
 
 typedef unsigned int uint;
 typedef std::complex<double> comp;
+enum {DC, AC} TYPE;
+
 struct vertex_pair {
 	uint from, to;
     
