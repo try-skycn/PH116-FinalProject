@@ -11,58 +11,32 @@ void graph::add_edge(edge *e, vertex *from, vertex *to, conductor_info elect_inf
 }
 
 void graph::find_tree_path(uint index, vertex *x, vertex *y, std::vector<edge *> &path){
+	for (int i = 0; i < vertex_number; ++i) {
+		vertex_memory_pool[i].find_tree_mark = false;
+		vertex_memory_pool[i].prev_vertex = NULL;
+		vertex_memory_pool[i].prev_edge = NULL;
+	}
 	std::queue<vertex *> Q;
 	Q.push(x);
 	x->find_tree_mark = true;
 	while (!Q.empty()) {
-		vertex *u = Q.front(); Q.pop();
+		vertex *u = Q.front();
+		Q.pop();
 		if (u == y) break;
 		for (edge *e = u->first_edge; e; e = e->next_edge) {
-			if (e->index == index) continue;
-			vertex *v = e->endpoint;
-			v->prev_vertex = u;
-			v->prev_edge = e;
-			if (!v->find_tree_mark) {
-				Q.push(v);
-				v->find_tree_mark = true;
+			if (e->in_tree) {
+				vertex *v = e->endpoint;
+				if (!v->find_tree_mark) {
+					v->prev_vertex = u;
+					v->prev_edge = e;
+					Q.push(v);
+					v->find_tree_mark = true;
+				}
 			}
 		}
 	}
-
-	while (!Q.empty()) Q.pop();
-	
-	
-	
-	/*std::vector<edge *> path1;
-	edge *a;
-	a = new edge;
-	printf("test!\n");
-	path1.push_back(a);
-	printf("test over!\n");
-	fflush(stdout);*/
-	
-	
-	
-	
 	for (vertex *u = y; u != x; u = u->prev_vertex){
-		//printf("In loop\n");
-		//printf("%p\n", u->prev_edge);
 		path.insert(path.begin(), u->prev_edge);
-		}
-	//printf("Out loop\n");
-		
-	//re-initial the find_tree_mark label
-	Q.push(x);
-	x->find_tree_mark = false;
-	while (!Q.empty()){
-		vertex *u = Q.front(); Q.pop();
-		for (edge *e = u->first_edge; e; e = e->next_edge){
-			vertex *v = e->endpoint;
-			if (v->find_tree_mark){
-				Q.push(v);
-				v->find_tree_mark = false;
-			}
-		}
 	}
 }
 
@@ -103,7 +77,7 @@ void graph::bfs(vertex *start, arma::cx_mat &A, arma::cx_vec &b, uint &current_r
 				e->in_tree = true;
 				e->opposite_edge->in_tree = true;
 
-				arma::cx_rowvec edgedir = flow_conservation_equation(x);
+				arma::cx_rowvec edgedir = flow_conservation_equation(e->endpoint);
 				A.row(current_row++) = edgedir;
 			}
 		}
