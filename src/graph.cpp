@@ -67,7 +67,7 @@ void graph::find_tree_path(uint index, vertex *x, vertex *y, std::vector<edge *>
 }
 
 arma::cx_rowvec graph::flow_conservation_equation(vertex *x) {
-	arma::cx_rowvec edgedir;
+	arma::cx_rowvec edgedir(edge_number, arma::fill::zeros);
 	for (edge *e = x->first_edge; e; e = e->next_edge) {
 		edgedir(e->index) = e->direction;
 	}
@@ -79,7 +79,7 @@ std::pair<arma::cx_rowvec, comp> graph::circular_equation(vertex *from, edge *e)
 	find_tree_path(e->index, from, e->endpoint, path);
 	path.push_back(e->opposite_edge);
 
-	arma::cx_rowvec edgeimp;
+	arma::cx_rowvec edgeimp(edge_number, arma::fill::zeros);
 	comp totemf;
 
 	for (std::vector<edge *>::iterator it = path.begin(); it != path.end(); ++it) {
@@ -97,9 +97,9 @@ void graph::bfs(vertex *start, arma::cx_mat &A, arma::cx_vec &b, uint &current_r
 		vertex *x = Q.front();
 		Q.pop();
 		for (edge *e = x->first_edge; e; e = e->next_edge) {
-			if (!x->bfs_mark) {
+			if (!e->endpoint->bfs_mark) {
 				Q.push(x);
-				x->bfs_mark = true;
+				e->endpoint->bfs_mark = true;
 				e->in_tree = true;
 				e->opposite_edge->in_tree = true;
 
