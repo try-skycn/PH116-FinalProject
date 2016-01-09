@@ -20,6 +20,8 @@ private:	//For data structures
 	struct vertex {
 		edge *first_edge;
 		bool bfs_mark;
+		edge *prev_edge;  //for find_tree_path
+		vertex *prev_vertex;  //for find_tree_path
 
 		vertex();
 	};

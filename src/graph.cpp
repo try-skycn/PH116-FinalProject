@@ -10,6 +10,43 @@ void graph::add_edge(edge *e, vertex *from, vertex *to, conductor_info elect_inf
 	e->elect_info = elect_info;
 }
 
+void graph::find_tree_path(uint index, vertex *x, vertex *y, std::vector<edge *> &path){
+	std::queue<vertex *> Q;
+	Q.push(x);
+	x->find_tree_mark = true;
+	while (!Q.empty()) {
+		vertex *u = Q.front(); Q.pop();
+		if (u == y) break;
+		for (edge *e = u->first_edge; e; e = e->next_edge) {
+			if (e->index == index) continue;
+			vertex *v = e->endpoint;
+			if (!v->find_tree_mark) {
+				Q.push(v);
+				v->find_tree_mark = true;
+			}
+		}
+	}
+
+	while (!Q.empty()) Q.pop();
+	
+	for (vertex *u = y; u != x; u = u->prev_vertex)
+		path.insert(path.begin(), u->prev_edge);
+		
+	//re-initial the find_tree_mark label
+	Q.push(x);
+	x->find_tree_mark = false;
+	while (!Q.empty()){
+		vertex *u = Q.front(); Q.pop();
+		for (edge *e = u->first_edge; e; e = e->next_edge){
+			vertex *v = e->endpoint;
+			if (v->find_tree_mark){
+				Q.push(v);
+				v->find_tree_mark = false;
+			}
+		}
+	}
+}
+
 arma::cx_rowvec graph::flow_conservation_equation(vertex *x) {
 	arma::cx_rowvec edgedir;
 	for (edge *e = x->first_edge; e; e = e->next_edge) {
@@ -108,4 +145,7 @@ graph::edge::edge() {
 graph::vertex::vertex() {
 	first_edge = NULL;
 	bfs_mark = false;
+	find_tree_mark = false;
+	prev_edge = NULL;
+	prev_vertex = NULL;
 }
