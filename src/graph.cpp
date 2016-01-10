@@ -72,7 +72,7 @@ void graph::bfs(vertex *start, arma::cx_mat &A, arma::cx_vec &b, uint &current_r
 		Q.pop();
 		for (edge *e = x->first_edge; e; e = e->next_edge) {
 			if (!e->endpoint->bfs_mark) {
-				Q.push(x);
+				Q.push(e->endpoint);
 				e->endpoint->bfs_mark = true;
 				e->in_tree = true;
 				e->opposite_edge->in_tree = true;
