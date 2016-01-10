@@ -52,7 +52,7 @@ void output_circuit_current(const std::vector <std::complex<double> > &I, const 
 		<< "\\hline" << std::endl;
 
 	for (uint i = 0; i < w.size(); i++) {
-		std::complex <double> E = w[i].elect_info.imp;
+		std::complex <double> E = w[i].elect_info.emf;
 		if (E == std::complex <double>(0., 0.)) continue;
 		fout << "$E_{" << i << "}$" << "& $";
 		if (TYPE == DC) {
@@ -88,7 +88,7 @@ unsigned int input_circuit_network(std::vector <conductor>& w) {
     cin >> str;
     if (str == "DC") TYPE = DC;
         else TYPE = AC;
-    uint N = -1;
+    uint N = 0;
     while (1) {
         conductor next;
         int f, t;
