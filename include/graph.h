@@ -2,6 +2,7 @@
 #define __GRAPH_H__
 
 #include "resources.h"
+#include <armadillo>
 
 class graph {
 private:	//For data structures

@@ -5,7 +5,6 @@
 #include <vector>
 #include <utility>
 #include <queue>
-//#include <armadillo>
 
 typedef unsigned int uint;
 typedef std::complex<double> comp;
