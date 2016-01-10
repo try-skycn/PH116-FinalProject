@@ -27,15 +27,28 @@ void draw_circuit(const std::vector <std::complex<double> > &I, const std::vecto
                 draw << "bz" << i << " [label = \"Z" << i << "\"];" << std::endl;
             }
             if (data[i].elect_info.emf != std::complex<double>(0,0)){
-                draw << "be" << i << " [label = \"E" << i << "\"];" << std::endl;
+                draw << "be" << i << " [label = \"E" << i << ":" << data[i].edge_info.from << "->" << data[i].edge_info.to << "\"];" << std::endl;
             }
             if (data[i].elect_info.emf != std::complex<double>(0,0) && data[i].elect_info.imp != std::complex<double>(0,0)){
-                draw << "bz" << i << "->" << "be" << i << ";" << std::endl;
+                draw << "bz" << i << "--" << "be" << i << ";" << std::endl;
             }
 			draw << "}" << std::endl;
         }
-        draw << "node[shape = point];" << std::endl;
-        for (int i = 0; i < (int)data.size(); ++i){
+        draw << "node[shape = circle];" << std::endl;
+		
+		uint n = 0;
+		
+		for (uint i = 0; i < data.size(); ++i) {
+			if (data[i].edge_info.from > n) n = data[i].edge_info.from;
+			if (data[i].edge_info.to > n) n = data[i].edge_info.to;
+		}
+		++n;
+
+		for (uint i = 0; i < n; i++) {
+			draw << "n" << i << " [label = \"" << i << "\"];";
+		}
+
+		for (int i = 0; i < (int)data.size(); ++i){
             //设置电流真实方向，保证图中所绘为 a-(I)->bz->be->b
             uint _f, _t;
             if (I[i].real() >= 0){
