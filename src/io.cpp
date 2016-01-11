@@ -1,74 +1,20 @@
 #include "io.h"
 #include <iostream>
 #include <string>
-#include <fstream>
+#include <iomanip>
 #include <cmath>
 #include "draw.h"
-std::ofstream fout("out.tex");
-using std::cin;
 
 enum { DC, AC } TYPE;
 void output_circuit_current(const std::vector <std::complex<double> > &I, const std::vector <conductor> &w) {
-    draw_circuit(I, w, (TYPE == AC));
-	fout << "\\documentclass[14px]{article}" << std::endl
-		<< "\\usepackage{graphicx}" << std::endl
-		<< "\\begin{document}" << std::endl
-		<< "\\includegraphics[height = 5cm]{pic.eps}" << std::endl
-		<< "\\begin{table}[!htb]" << std::endl
-		<< "\\begin{tabular}{|l|l|}" << std::endl
-		<< "\\hline" << std::endl;
-    for (uint i = 0; i < I.size(); i++) {
-        fout << "$I_{" << i << "}$" << " & $";
-        if (TYPE == DC){
-            fout << fabs(I[i].real());
-        }
-        else {
-            fout << "(" << I[i].real() << (I[i].imag() > 0 ?" + ": " - ") << fabs(I[i].imag()) << "i) ";
-        }
-		fout << "A$ \\\\" << std::endl
-			<< "\\hline" << std::endl;
-    }
-	fout << "\\end{tabular}" << std::endl;
-
-	fout << "\\begin{tabular}{|l|l|}" << std::endl
-		<< "\\hline" << std::endl;
-
-	for (uint i = 0; i < w.size(); i++) {
-		std::complex <double> Z = w[i].elect_info.imp;
-		if (Z == std::complex <double>(0., 0.)) continue;
-		fout << "$Z_{" << i << "}$" << "& $";
-		if (TYPE == DC) {
-			fout << Z.real();
+    std::cout << std::fixed << std::setprecision(6); 
+	for (uint i = 0; i < I.size(); i++) {
+		if (TYPE == AC) {
+			std::cout << "The current from " << w[i].edge_info.from << " to " << w[i].edge_info.to << " is: " << I[i].real() << (I[i].imag() >= 0. ? " + " : " - ") << fabs(I[i].imag()) << "i A" << std::endl;
+		} else {
+			std::cout << "The current from " << w[i].edge_info.from << " to " << w[i].edge_info.to << " is: " << I[i].real() << " A" << std::endl;
 		}
-		else {
-			fout << "(" << Z.real() << (Z.imag() > 0 ? " + " : " - ") << fabs(Z.imag()) << "i) ";
-		}
-		fout << "\\Omega$ \\\\" << std::endl
-			<< "\\hline" << std::endl;
 	}
-	fout << "\\end{tabular}" << std::endl;
-	
-	fout << "\\begin{tabular}{|l|l|}" << std::endl
-		<< "\\hline" << std::endl;
-
-	for (uint i = 0; i < w.size(); i++) {
-		std::complex <double> E = w[i].elect_info.emf;
-		if (E == std::complex <double>(0., 0.)) continue;
-		fout << "$E_{" << i << "}$" << "& $";
-		if (TYPE == DC) {
-			fout << E.real();
-		}
-		else {
-			fout << "(" << E.real() << (E.imag() > 0 ? " + " : " - ") << fabs(E.imag()) << "i) ";
-		}
-		fout << "V$ \\\\" << std::endl
-			<< "\\hline" << std::endl;
-	}
-	fout << "\\end{tabular}" << std::endl;
-
-	fout << "\\end{table}" << std::endl
-		<< "\\end{document}" << std::endl;
-    fout.close();
 }
 
 /*  Read in the circuit from "data.txt". 
@@ -85,7 +31,7 @@ void output_circuit_current(const std::vector <std::complex<double> > &I, const 
 unsigned int input_circuit_network(std::vector <conductor>& w) {
     std::string str;
     double real, imag;
-    cin >> str;
+    std::cin >> str;
     if (str == "DC") TYPE = DC;
         else TYPE = AC;
     uint N = 0;
@@ -93,22 +39,22 @@ unsigned int input_circuit_network(std::vector <conductor>& w) {
         conductor next;
         int f, t;
         
-        cin >> f >> t;
+        std::cin >> f >> t;
         if (f == -1 && t == -1) break;
         
         next.edge_info.from = f;
         next.edge_info.to = t;
         
         if (TYPE == AC){
-            cin >> real >> imag;
+            std::cin >> real >> imag;
             next.elect_info.imp = std::complex<double>(real, imag);
-            cin >> real >> imag;
+            std::cin >> real >> imag;
             next.elect_info.emf = std::complex<double>(real, imag);
         }
         else {
-            cin >> real;
+            std::cin >> real;
             next.elect_info.imp = std::complex<double>(real);
-            cin >> real;
+            std::cin >> real;
             next.elect_info.emf = std::complex<double>(real);
         }
         N = ((unsigned)f > N) ? (unsigned)f : N;
