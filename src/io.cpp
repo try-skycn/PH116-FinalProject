@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <cmath>
+#include <iomanip>
 #include "draw.h"
 std::ofstream fout("out.tex");
 using std::cin;
@@ -17,6 +18,9 @@ void output_circuit_current(const std::vector <std::complex<double> > &I, const 
 		<< "\\begin{table}[!htb]" << std::endl
 		<< "\\begin{tabular}{|l|l|}" << std::endl
 		<< "\\hline" << std::endl;
+    
+    //改成小数表示
+    fout << std::fixed << std::setprecision(6);
     for (uint i = 0; i < I.size(); i++) {
         fout << "$I_{" << i << "}$" << " & $";
         if (TYPE == DC){
@@ -29,7 +33,9 @@ void output_circuit_current(const std::vector <std::complex<double> > &I, const 
 			<< "\\hline" << std::endl;
     }
 	fout << "\\end{tabular}" << std::endl;
-
+    fout << "\\end{table}" << std::endl;
+    
+    fout << "\\begin{table}[!htb]" << std::endl;
 	fout << "\\begin{tabular}{|l|l|}" << std::endl
 		<< "\\hline" << std::endl;
 
@@ -47,7 +53,9 @@ void output_circuit_current(const std::vector <std::complex<double> > &I, const 
 			<< "\\hline" << std::endl;
 	}
 	fout << "\\end{tabular}" << std::endl;
-	
+    fout << "\\end{table}" << std::endl;
+
+    fout << "\\begin{table}[!htb]" << std::endl;
 	fout << "\\begin{tabular}{|l|l|}" << std::endl
 		<< "\\hline" << std::endl;
 
